@@ -1,24 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
+  Search,
+  Filter,
+  Calendar,
+  MapPin,
+  Users,
+  TrendingUp,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+  X,
   GraduationCap,
   Heart,
   Home,
-  Users,
   Utensils,
   Book,
-  MapPin,
-  Calendar,
-  TrendingUp,
-  Eye,
-  Filter
+  Target,
+  CheckCircle,
+  Clock,
+  Play
 } from "lucide-react";
+import AddProgramModal from "../../components/addProgram";
 
 const ProgramsPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedYear, setSelectedYear] = useState("All");
-  const [selectedStatus, setSelectedStatus] = useState("All");
-  const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'table'
-
   const categories = [
     "All",
     "Education",
@@ -27,9 +32,7 @@ const ProgramsPage = () => {
     "Emergency Relief",
     "Youth Programs"
   ];
-
   const years = ["All", "2024", "2023", "2022", "2021"];
-  const statuses = ["All", "Ongoing", "Completed", "Planning"];
 
   const programs = [
     {
@@ -182,362 +185,434 @@ const ProgramsPage = () => {
     }
   ];
 
-  const filteredPrograms = programs.filter((program) => {
-    return (
-      (selectedCategory === "All" || program.category === selectedCategory) &&
-      (selectedYear === "All" || program.year.toString() === selectedYear) &&
-      (selectedStatus === "All" || program.status === selectedStatus)
-    );
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedYear, setSelectedYear] = useState("All");
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [showFilters, setShowFilters] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const getCategoryColor = (category) => {
-    const colors = {
-      Education: "bg-blue-100 text-blue-800",
-      Healthcare: "bg-red-100 text-red-800",
-      "Community Development": "bg-green-100 text-green-800",
-      "Emergency Relief": "bg-orange-100 text-orange-800",
-      "Youth Programs": "bg-purple-100 text-purple-800"
+  const filteredPrograms = useMemo(() => {
+    return programs.filter((program) => {
+      const matchesSearch =
+        program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        program.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "All" || program.category === selectedCategory;
+      const matchesYear =
+        selectedYear === "All" || program.year.toString() === selectedYear;
+
+      return matchesSearch && matchesCategory && matchesYear;
+    });
+  }, [searchTerm, selectedCategory, selectedYear, programs]);
+
+    const handleSaveProgram = (newProgram) => {
+      setPrograms((prev) => [...prev, newProgram]);
+      console.log("New program created:", newProgram);
+      // Here you would typically send the data to your backend
     };
-    return colors[category] || "bg-gray-100 text-gray-800";
-  };
 
   const getStatusColor = (status) => {
-    const colors = {
-      Ongoing: "bg-green-100 text-green-700",
-      Completed: "bg-blue-100 text-blue-700",
-      Planning: "bg-yellow-100 text-yellow-700"
-    };
-    return colors[status] || "bg-gray-100 text-gray-700";
+    switch (status) {
+      case "Ongoing":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "Completed":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Planning":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "Ongoing":
+        return <Clock className="w-4 h-4" />;
+      case "Completed":
+        return <CheckCircle className="w-4 h-4" />;
+      case "Planning":
+        return <Target className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
+    }
   };
 
   const ProgramCard = ({ program }) => (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group">
       <div className="relative">
         <img
           src={program.images[0]}
           alt={program.title}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute top-4 left-4 bg-white bg-opacity-90 rounded-full p-2">
-          {program.icon}
+        <div className="absolute top-4 left-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-full p-2">
+            {program.icon}
+          </div>
         </div>
         <div className="absolute top-4 right-4">
           <span
-            className={`px-3 py-1 text-sm rounded-full ${getStatusColor(
+            className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
               program.status
-            )}`}
+            )} flex items-center gap-1`}
           >
+            {getStatusIcon(program.status)}
             {program.status}
           </span>
+        </div>
+        <div className="absolute bottom-4 right-4">
+          <button className="bg-white/90 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors">
+            <Play className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
       <div className="p-6">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-xl font-semibold text-gray-800 line-clamp-2">
+        <div className="flex items-start justify-between mb-3">
+          <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
             {program.title}
           </h3>
-          <span
-            className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(
-              program.category
-            )}`}
-          >
-            {program.category}
-          </span>
+          <span className="text-sm text-gray-500 ml-2">{program.year}</span>
         </div>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
           {program.description}
         </p>
 
-        <div className="space-y-3">
-          <div className="flex items-center text-sm text-gray-500">
-            <MapPin className="w-4 h-4 mr-2" />
-            {program.location}
+        <div className="space-y-3 mb-4">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <MapPin className="w-4 h-4" />
+            <span>{program.location}</span>
           </div>
-
-          <div className="flex items-center text-sm text-gray-500">
-            <Calendar className="w-4 h-4 mr-2" />
-            {program.year}
-          </div>
-
-          <div className="flex items-center text-sm text-gray-500">
-            <Users className="w-4 h-4 mr-2" />
-            {program.beneficiaries} beneficiaries
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500">Progress</span>
-              <span className="font-medium">{program.progress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-[#195C70] h-2 rounded-full transition-all duration-300"
-                style={{ width: `${program.progress}%` }}
-              ></div>
-            </div>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <Users className="w-4 h-4" />
+            <span>{program.beneficiaries.toLocaleString()} beneficiaries</span>
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Key Goals:</h4>
-          <ul className="text-sm text-gray-600 space-y-1">
-            {program.goals.slice(0, 2).map((goal, index) => (
-              <li key={index} className="flex items-center">
-                <div className="w-1.5 h-1.5 bg-[#195C70] rounded-full mr-2"></div>
-                {goal}
-              </li>
-            ))}
-            {program.goals.length > 2 && (
-              <li className="text-xs text-gray-500">
-                +{program.goals.length - 2} more goals
-              </li>
-            )}
-          </ul>
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-medium text-gray-700">Progress</span>
+            <span className="text-sm font-medium text-[#195C70]">
+              {program.progress}%
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-[#195C70] h-2 rounded-full transition-all duration-300"
+              style={{ width: `${program.progress}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSelectedProgram(program)}
+            className="flex-1 bg-[#195C70] text-white py-2 px-4 rounded-lg hover:bg-[#144b5d] transition-colors flex items-center justify-center gap-2"
+          >
+            <Eye className="w-4 h-4" />
+            View Details
+          </button>
+          <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <Edit className="w-4 h-4 text-gray-600" />
+          </button>
         </div>
       </div>
     </div>
   );
 
-  return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-[#195C70] mb-2">Programs</h1>
-          <p className="text-gray-600">
-            Discover our impactful initiatives making a difference in
-            communities
-          </p>
+  const ProgramListItem = ({ program }) => (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+        <div className="flex-shrink-0">
+          <img
+            src={program.images[0]}
+            alt={program.title}
+            className="w-20 h-20 lg:w-24 lg:h-24 object-cover rounded-lg"
+          />
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setViewMode(viewMode === "grid" ? "table" : "grid")}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-          >
-            <Eye className="w-4 h-4" />
-            {viewMode === "grid" ? "Table View" : "Grid View"}
-          </button>
-          <button className="bg-[#195C70] text-white px-6 py-2 rounded-lg hover:bg-[#144b5d] transition">
-            + Add New Program
-          </button>
-        </div>
-      </div>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Programs</p>
-              <p className="text-2xl font-bold text-[#195C70]">
-                {programs.length}
-              </p>
+        <div className="flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {program.title}
+            </h3>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">{program.year}</span>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                  program.status
+                )} flex items-center gap-1`}
+              >
+                {getStatusIcon(program.status)}
+                {program.status}
+              </span>
             </div>
-            <TrendingUp className="w-8 h-8 text-[#195C70]" />
           </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Beneficiaries</p>
-              <p className="text-2xl font-bold text-green-600">
-                {programs
-                  .reduce((sum, program) => sum + program.beneficiaries, 0)
-                  .toLocaleString()}
-              </p>
+
+          <p className="text-gray-600 mb-4">{program.description}</p>
+
+          <div className="flex flex-wrap gap-4 mb-4">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <MapPin className="w-4 h-4" />
+              <span>{program.location}</span>
             </div>
-            <Users className="w-8 h-8 text-green-600" />
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Users className="w-4 h-4" />
+              <span>
+                {program.beneficiaries.toLocaleString()} beneficiaries
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <TrendingUp className="w-4 h-4" />
+              <span>{program.progress}% complete</span>
+            </div>
           </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Active Programs</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {programs.filter((p) => p.status === "Ongoing").length}
-              </p>
-            </div>
-            <Calendar className="w-8 h-8 text-blue-600" />
-          </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Completed Programs</p>
-              <p className="text-2xl font-bold text-purple-600">
-                {programs.filter((p) => p.status === "Completed").length}
-              </p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-purple-600" />
+
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedProgram(program)}
+              className="bg-[#195C70] text-white py-2 px-4 rounded-lg hover:bg-[#144b5d] transition-colors flex items-center gap-2"
+            >
+              <Eye className="w-4 h-4" />
+              View Details
+            </button>
+            <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              <Edit className="w-4 h-4 text-gray-600" />
+            </button>
           </div>
         </div>
       </div>
+    </div>
+  );
 
-      {/* Filters */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-        <div className="flex items-center gap-2 mb-4">
-          <Filter className="w-5 h-5 text-[#195C70]" />
-          <h3 className="text-lg font-semibold text-[#195C70]">Filters</h3>
-        </div>
+  const ProgramModal = ({ program, onClose }) => {
+    if (!program) return null;
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent"
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+          <div className="flex items-center justify-between p-6 border-b">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {program.title}
+            </h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
+              <X className="w-6 h-6" />
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Year
-            </label>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent"
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent"
-            >
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Programs Display */}
-      {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPrograms.map((program) => (
-            <ProgramCard key={program.id} program={program} />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[#195C70] text-white">
-                <tr>
-                  <th className="text-left py-4 px-6">Program</th>
-                  <th className="text-left py-4 px-6">Category</th>
-                  <th className="text-left py-4 px-6">Year</th>
-                  <th className="text-left py-4 px-6">Status</th>
-                  <th className="text-left py-4 px-6">Progress</th>
-                  <th className="text-left py-4 px-6">Beneficiaries</th>
-                  <th className="text-left py-4 px-6">Location</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPrograms.map((program) => (
-                  <tr
-                    key={program.id}
-                    className="border-t border-gray-200 hover:bg-gray-50"
-                  >
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-gray-100 p-2 rounded-full">
-                          {program.icon}
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-800">
-                            {program.title}
-                          </h4>
-                          <p className="text-sm text-gray-500 line-clamp-1">
-                            {program.description}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
+          <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+            <div className="p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <img
+                    src={program.images[0]}
+                    alt={program.title}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                </div>
+                <div>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
                       <span
-                        className={`px-2 py-1 text-xs rounded-full ${getCategoryColor(
-                          program.category
-                        )}`}
-                      >
-                        {program.category}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-gray-600">{program.year}</td>
-                    <td className="py-4 px-6">
-                      <span
-                        className={`px-3 py-1 text-sm rounded-full ${getStatusColor(
+                        className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
                           program.status
-                        )}`}
+                        )} flex items-center gap-1`}
                       >
+                        {getStatusIcon(program.status)}
                         {program.status}
                       </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-[#195C70] h-2 rounded-full"
-                            style={{ width: `${program.progress}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-500">
+                        {program.year}
+                      </span>
+                    </div>
+
+                    <p className="text-gray-600">{program.description}</p>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <span>{program.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Users className="w-4 h-4 text-gray-500" />
+                        <span>
+                          {program.beneficiaries.toLocaleString()} beneficiaries
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-gray-700">
+                          Progress
+                        </span>
+                        <span className="text-sm font-medium text-[#195C70]">
                           {program.progress}%
                         </span>
                       </div>
-                    </td>
-                    <td className="py-4 px-6 text-gray-600">
-                      {program.beneficiaries.toLocaleString()}
-                    </td>
-                    <td className="py-4 px-6 text-gray-600">
-                      {program.location}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className="bg-[#195C70] h-3 rounded-full transition-all duration-300"
+                          style={{ width: `${program.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-      {filteredPrograms.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <Filter className="w-16 h-16 mx-auto" />
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-3">Program Goals</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {program.goals.map((goal, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg"
+                    >
+                      <Target className="w-4 h-4 text-[#195C70]" />
+                      <span className="text-sm">{goal}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Program Gallery</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {program.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`${program.title} - ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 className="text-lg font-medium text-gray-600 mb-2">
-            No programs found
-          </h3>
-          <p className="text-gray-500">
-            Try adjusting your filters to see more programs.
-          </p>
         </div>
-      )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Programs</h1>
+            <p className="text-gray-600 mt-1">
+              Discover our impactful community programs
+            </p>
+          </div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-[#195C70] text-white px-6 py-3 rounded-lg hover:bg-[#144b5d] transition-colors flex items-center gap-2 w-fit"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Program
+          </button>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search programs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent"
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent"
+              >
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent"
+              >
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={() =>
+                  setViewMode(viewMode === "grid" ? "list" : "grid")
+                }
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                {viewMode === "grid" ? "List View" : "Grid View"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Programs Grid/List */}
+        {filteredPrograms.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <Search className="w-12 h-12 mx-auto" />
+            </div>
+            <p className="text-gray-500 text-lg">
+              No programs found matching your criteria.
+            </p>
+          </div>
+        ) : (
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                : "space-y-6"
+            }
+          >
+            {filteredPrograms.map((program) =>
+              viewMode === "grid" ? (
+                <ProgramCard key={program.id} program={program} />
+              ) : (
+                <ProgramListItem key={program.id} program={program} />
+              )
+            )}
+          </div>
+        )}
+
+        <AddProgramModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveProgram}
+        />
+
+        {/* Program Modal */}
+        <ProgramModal
+          program={selectedProgram}
+          onClose={() => setSelectedProgram(null)}
+        />
+      </div>
     </div>
   );
 };

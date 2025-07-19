@@ -9,7 +9,8 @@ import {
   Trash2,
   Check,
   Clock,
-  Calendar
+  Calendar,
+  X
 } from "lucide-react";
 
 const ContactAdminPage = ({ isCollapsed }) => {
@@ -69,6 +70,7 @@ const ContactAdminPage = ({ isCollapsed }) => {
 
   const deleteMessage = (id) => {
     setMessages(messages.filter((msg) => msg.id !== id));
+    setSelectedMessage(null);
   };
 
   const getStatusColor = (status) => {
@@ -85,11 +87,11 @@ const ContactAdminPage = ({ isCollapsed }) => {
   const getStatusIcon = (status) => {
     switch (status) {
       case "read":
-        return <Check className="w-4 h-4" />;
+        return <Check className="w-3 h-3 sm:w-4 sm:h-4" />;
       case "unread":
-        return <Clock className="w-4 h-4" />;
+        return <Clock className="w-3 h-3 sm:w-4 sm:h-4" />;
       default:
-        return <MessageCircle className="w-4 h-4" />;
+        return <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />;
     }
   };
 
@@ -113,80 +115,80 @@ const ContactAdminPage = ({ isCollapsed }) => {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <MessageCircle className="w-8 h-8 text-[#195C70]" />
-            Contact Messages
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 flex items-center gap-2 sm:gap-3">
+            <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-[#195C70]" />
+            <span className="break-words">Contact Messages</span>
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Manage and respond to contact form submissions
           </p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
                   Total Messages
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">
                   {stats.total}
                 </p>
               </div>
-              <MessageCircle className="w-8 h-8 text-blue-500" />
+              <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
                   Unread Messages
                 </p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-xl sm:text-2xl font-bold text-blue-600">
                   {stats.unread}
                 </p>
               </div>
-              <Clock className="w-8 h-8 text-blue-500" />
+              <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
                   Read Messages
                 </p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-xl sm:text-2xl font-bold text-green-600">
                   {stats.read}
                 </p>
               </div>
-              <Check className="w-8 h-8 text-green-500" />
+              <Check className="w-6 h-6 sm:w-8 sm:h-8 text-green-500" />
             </div>
           </div>
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-200">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search messages..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent outline-none"
+                className="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent outline-none"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            <div className="flex gap-4">
-              <div className="relative">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <div className="flex gap-2">
+              <div className="relative flex-1 sm:flex-none">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 <select
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent outline-none bg-white"
+                  className="w-full sm:w-auto pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#195C70] focus:border-transparent outline-none bg-white"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -199,135 +201,212 @@ const ContactAdminPage = ({ isCollapsed }) => {
           </div>
         </div>
 
-        {/* Messages Table */}
+        {/* Messages - Mobile Cards / Desktop Table */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          {messages.length === 0 ? (
+          {filteredMessages.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
-              No messages yet.
+              <MessageCircle className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No messages found.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Message
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredMessages.map((message) => (
-                    <tr key={message.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-[#195C70] rounded-full flex items-center justify-center text-white font-medium">
-                            {message.name.charAt(0)}
+            <>
+              {/* Mobile Cards */}
+              <div className="block md:hidden">
+                {filteredMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className="p-4 border-b border-gray-200 last:border-b-0"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="w-10 h-10 bg-[#195C70] rounded-full flex items-center justify-center text-white font-medium text-sm shrink-0">
+                          {message.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {message.name}
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {message.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {message.email}
-                            </div>
+                          <div className="text-xs text-gray-500 truncate">
+                            {message.email}
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs truncate">
-                          {message.message}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          message.status
+                        )} shrink-0`}
+                      >
+                        {getStatusIcon(message.status)}
+                        {message.status.charAt(0).toUpperCase() +
+                          message.status.slice(1)}
+                      </span>
+                    </div>
+
+                    <div className="mb-3">
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {message.message}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-gray-500">
                         {message.date}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            message.status
-                          )}`}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSelectedMessage(message)}
+                          className="text-[#195C70] hover:text-[#154d5f] p-1 rounded"
                         >
-                          {getStatusIcon(message.status)}
-                          {message.status.charAt(0).toUpperCase() +
-                            message.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center gap-2">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {message.status === "unread" && (
                           <button
-                            onClick={() => setSelectedMessage(message)}
-                            className="text-[#195C70] hover:text-[#154d5f] p-1 rounded"
+                            onClick={() => markAsRead(message.id)}
+                            className="text-green-600 hover:text-green-800 p-1 rounded"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Check className="w-4 h-4" />
                           </button>
-                          {message.status === "unread" && (
-                            <button
-                              onClick={() => markAsRead(message.id)}
-                              className="text-green-600 hover:text-green-800 p-1 rounded"
+                        )}
+                        <button
+                          onClick={() => deleteMessage(message.id)}
+                          className="text-red-600 hover:text-red-800 p-1 rounded"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block rounded-lg shadow-sm border border-gray-200    overflow-x-auto overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Contact
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Message
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredMessages.map((message) => (
+                        <tr key={message.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="w-10 h-10 bg-[#195C70] rounded-full flex items-center justify-center text-white font-medium">
+                                {message.name.charAt(0)}
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {message.name}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {message.email}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 max-w-xs truncate">
+                              {message.message}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {message.date}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                message.status
+                              )}`}
                             >
-                              <Check className="w-4 h-4" />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => deleteMessage(message.id)}
-                            className="text-red-600 hover:text-red-800 p-1 rounded"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                              {getStatusIcon(message.status)}
+                              {message.status.charAt(0).toUpperCase() +
+                                message.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => setSelectedMessage(message)}
+                                className="text-[#195C70] hover:text-[#154d5f] p-1 rounded"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              {message.status === "unread" && (
+                                <button
+                                  onClick={() => markAsRead(message.id)}
+                                  className="text-green-600 hover:text-green-800 p-1 rounded"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => deleteMessage(message.id)}
+                                className="text-red-600 hover:text-red-800 p-1 rounded"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
         </div>
 
         {/* Message Detail Modal */}
         {selectedMessage && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center p-6 border-b">
-                <h2 className="text-xl font-semibold text-gray-900">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                   Message Details
                 </h2>
                 <button
                   onClick={() => setSelectedMessage(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 p-1"
                 >
-                  ×
+                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
 
-              <div className="p-6 space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-[#195C70] rounded-full flex items-center justify-center text-white text-xl font-bold">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[#195C70] rounded-full flex items-center justify-center text-white text-lg sm:text-xl font-bold">
                     {selectedMessage.name.charAt(0)}
                   </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">
                       {selectedMessage.name}
                     </h3>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
                       <div className="flex items-center gap-1">
-                        <Mail className="w-4 h-4" />
-                        {selectedMessage.email}
+                        <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="truncate">
+                          {selectedMessage.email}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                         {selectedMessage.date}
                       </div>
                     </div>
@@ -358,7 +437,7 @@ const ContactAdminPage = ({ isCollapsed }) => {
                   </p>
                 </div>
 
-                <div className="flex gap-3 pt-4 border-t">
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
                   {selectedMessage.status === "unread" && (
                     <button
                       onClick={() => {
